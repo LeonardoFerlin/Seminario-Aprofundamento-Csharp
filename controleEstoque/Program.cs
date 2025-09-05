@@ -1,63 +1,119 @@
-﻿
-using System.ComponentModel.DataAnnotations;
+﻿using System.ComponentModel.DataAnnotations;
 
-class Produto
+public class Produto
 {
-    private int id;
-    private string nome;
-    private double valor;
-    private int qtdEstoque;
+    // As propriedades agora são "completas", com campos privados.
+    private int _id;
+    private string _nome;
+    private double _valor;
+    private int _qtdEstoque;
 
+    // Construtor principal
     public Produto(int id, string nome, double valor, int qtdEstoque)
     {
-        validaCampos(id, nome, valor, qtdEstoque);
-
-        this.id = id;
-        this.nome = nome;
-        this.valor = valor;
-        this.qtdEstoque = qtdEstoque;
+        // A validação agora é feita pelo 'set' das propriedades.
+        // Se um valor inválido for passado, a exceção será lançada aqui.
+        Id = id;
+        Nome = nome;
+        Valor = valor;
+        QtdEstoque = qtdEstoque;
     }
-
+    
+    // Construtor sobrecarregado (sem Id)
+    // Usa 'this()' para chamar o construtor principal, passando 0 como valor padrão para o Id.
     public Produto(string nome, double valor, int qtdEstoque)
+        : this(0, nome, valor, qtdEstoque)
     {
-        //APLICAR AQUI AS SOBRECARGAS
     }
 
-
+    // Construtor sobrecarregado (sem Id e sem Valor)
+    // Usa 'this()' para chamar o construtor principal.
     public Produto(string nome, int qtdEstoque)
+        : this(0, nome, 0, qtdEstoque)
     {
-        //APLICAR AQUI AS SOBRECARGAS
     }
 
-    private void validaCampos(int id, string nome, double valor, int qtdEstoque)
+    // As propriedades agora têm a validação no 'set'.
+    // O 'get' não muda.
+    public int Id
     {
-        if (nome.Length < 4)
+        get { return _id; }
+        private set
         {
-            throw new ValidationException("O nome do produto deve ter mais de 3 caracteres");
-        }
-        if (valor < 0)
-        {
-            throw new ValidationException("O valor do produto não pode ser negativo");
-        }
-        if (qtdEstoque < 0)
-        {
-            throw new ValidationException("A quantidade em estoque do produto não pode ser negativa");
+            if (value <= 0)
+            {
+                throw new ArgumentException("O ID deve ser um número positivo.", nameof(value));
+            }
+            _id = value;
         }
     }
 
-    public void alterarValor(double novoValor)
+    public string Nome
     {
-        if (this.valor * 100 <= novoValor)
+        get { return _nome; }
+        private set
+        {
+            if (string.IsNullOrWhiteSpace(value) || value.Length < 4)
+            {
+                throw new ValidationException("O nome do produto deve ter mais de 3 caracteres e não pode ser nulo.");
+            }
+            _nome = value;
+        }
+    }
+
+    public double Valor
+    {
+        get { return _valor; }
+        private set
+        {
+            if (value < 0)
+            {
+                throw new ValidationException("O valor do produto não pode ser negativo.");
+            }
+            _valor = value;
+        }
+    }
+
+    public int QtdEstoque
+    {
+        get { return _qtdEstoque; }
+        private set
+        {
+            if (value < 0)
+            {
+                throw new ValidationException("A quantidade em estoque do produto não pode ser negativa.");
+            }
+            _qtdEstoque = value;
+        }
+    }
+    
+    // O método ValidaCampos() não é mais necessário porque a validação agora está nas propriedades.
+
+    public void AlterarValor(double novoValor)
+    {
+        if (this.Valor * 100 <= novoValor)
         {
             throw new ValidationException("O novo valor não pode ser 100x maior do que o valor atual.");
-            // TROCAR EXCEPTION POR UMA EXCEPTION PERSONALIZADA
         }
-
-        this.valor = novoValor;
+        
+        // A propriedade 'Valor' está com 'private set'. Para alterá-la, precisamos fazer isso
+        // dentro da classe, como você fez. A validação já ocorre no 'set'.
+        Valor = novoValor;
     }
 
-    public void atualizarEstoque(int qtd, char operacao)
+    public void AtualizarEstoque(int qtd, char operacao)
     {
-        // APLICAR AQUI ATUALIZAÇÃO DE ESTOQUE
+        if (operacao == '+')
+        {
+            QtdEstoque += qtd;
+        }
+        else if (operacao == '-')
+        {
+            QtdEstoque -= qtd; // A validação no 'set' de QtdEstoque garante que o valor não seja negativo.
+        }
+        else
+        {
+            throw new ArgumentException("Operação inválida. Use '+' para adicionar ou '-' para remover.");
+        }
     }
-}
+} 
