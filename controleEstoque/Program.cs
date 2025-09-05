@@ -1,8 +1,11 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using System.ComponentModel.DataAnnotations; // Excelente! O uso de ValidationException é uma ótima prática para validação.
 
 public class Produto
 {
     // As propriedades agora são "completas", com campos privados.
+    // Os campos privados garantem que os dados só podem ser
+    // acessados e modificados através das propriedades,
+    // que contêm a lógica de validação.
     private int _id;
     private string _nome;
     private double _valor;
@@ -13,6 +16,7 @@ public class Produto
     {
         // A validação agora é feita pelo 'set' das propriedades.
         // Se um valor inválido for passado, a exceção será lançada aqui.
+        
         Id = id;
         Nome = nome;
         Valor = valor;
@@ -38,10 +42,15 @@ public class Produto
     public int Id
     {
         get { return _id; }
+        // O 'private set' é uma prática de segurança. Isso impede que o
+        // ID seja alterado fora da classe, garantindo a sua imutabilidade
+        // após a criação do objeto.
         private set
         {
             if (value <= 0)
             {
+                // `nameof(value)` é excelente para obter o nome do parâmetro
+                // e tornar a mensagem de erro mais útil e fácil de refatorar.
                 throw new ArgumentException("O ID deve ser um número positivo.", nameof(value));
             }
             _id = value;
@@ -55,6 +64,7 @@ public class Produto
         {
             if (string.IsNullOrWhiteSpace(value) || value.Length < 4)
             {
+                
                 throw new ValidationException("O nome do produto deve ter mais de 3 caracteres e não pode ser nulo.");
             }
             _nome = value;
@@ -87,17 +97,17 @@ public class Produto
         }
     }
     
-    // O método ValidaCampos() não é mais necessário porque a validação agora está nas propriedades.
 
     public void AlterarValor(double novoValor)
     {
+        // A regra de negócio para a alteração do valor está aqui.
         if (this.Valor * 100 <= novoValor)
         {
             throw new ValidationException("O novo valor não pode ser 100x maior do que o valor atual.");
         }
         
         // A propriedade 'Valor' está com 'private set'. Para alterá-la, precisamos fazer isso
-        // dentro da classe, como você fez. A validação já ocorre no 'set'.
+        // dentro da classe. A validação já ocorre no 'set'.
         Valor = novoValor;
     }
 
@@ -109,11 +119,13 @@ public class Produto
         }
         else if (operacao == '-')
         {
-            QtdEstoque -= qtd; // A validação no 'set' de QtdEstoque garante que o valor não seja negativo.
+            // A validação no 'set' de QtdEstoque garante que o valor não seja negativo.
+        
+            QtdEstoque -= qtd;
         }
         else
         {
             throw new ArgumentException("Operação inválida. Use '+' para adicionar ou '-' para remover.");
         }
     }
-} 
+}
