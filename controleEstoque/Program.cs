@@ -9,7 +9,7 @@ public class ProdutoException : Exception
 public class Produto
 {
     private int _id;
-    private string _nome;
+    private string _nome = string.Empty;
     private double _valor;
     private int _qtdEstoque;
 
@@ -21,7 +21,7 @@ public class Produto
         Valor = valor;
         QtdEstoque = qtdEstoque;
     }
-    
+
     // Construtor sobrecarregado (sem Id)
     public Produto(string nome, double valor, int qtdEstoque)
         : this(0, nome, valor, qtdEstoque)
@@ -85,14 +85,14 @@ public class Produto
             _qtdEstoque = value;
         }
     }
-    
+
     public void AlterarValor(double novoValor)
     {
         if (this.Valor * 100 <= novoValor)
         {
             throw new ValidationException("O novo valor não pode ser 100x maior do que o valor atual.");
         }
-        
+
         Valor = novoValor;
     }
 
@@ -138,5 +138,27 @@ public class Produto
         }
 
         QtdEstoque -= quantidade;
+    }
+}
+
+class Program
+{
+    public static void Main(string[] args)
+    {
+        Produto p1 = new Produto(8, "Ryzen 5 7600x", 1500.00, 50);
+
+        Console.WriteLine($"ID: {p1.Id}");
+        Console.WriteLine($"Nome: {p1.Nome}");
+        Console.WriteLine($"Valor: {p1.Valor}");
+        Console.WriteLine($"Estoque: {p1.QtdEstoque}");
+
+        p1.ReporEstoque(10);
+        Console.WriteLine($"Após reposição: {p1.QtdEstoque}");
+
+        p1.Vender(70);
+        Console.WriteLine($"Após venda: {p1.QtdEstoque}");
+
+        p1.AlterarValor(0);
+        Console.WriteLine($"Após alteração de valor: {p1.Valor}");
     }
 }
